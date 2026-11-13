@@ -1,118 +1,107 @@
-# :robot: Sampark AI
+# Sampark AI
 
-## :notebook_with_decorative_cover: Overview
+Sampark AI is a single-page question-and-answer interface built with React and Vite. Users enter a prompt, the app sends it to Google's Gemini API, and the response is rendered as Markdown.
 
-**Sampark is an artificial intelligence enabled chat application which is controlled by Google **Gemini** {Pro} API. Integration of a gemini pro api key sllows you to generate response from Gemini directly. In **Sampark** you need to enter your question in the given space and hit the **`Generate Response`** button. The Gemini AI model will generate the most precised and to the point answers for you.**
+<p align="center">
+  <img alt="React" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=20232A">
+  <img alt="Vite" src="https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white">
+  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white">
+  <img alt="License" src="https://img.shields.io/badge/License-MIT-green.svg">
+</p>
 
-## :gear: Environment Variables
-```.env
-AI_GENERATIVE = < Your API Key >
-```
-## :wrench: Setting Up Gemini API Key
-**`Step - 1`** 
-<br>
+## Features
 
-**To generate your Gemini API key you need to go to Google AI studio by clicking &nbsp; _[here](https://ai.google.dev/aistudio)_ &nbsp; and create an account or sign in with an existing Google account**
-<br>
+- Prompt submission through a simple chat-style form.
+- Gemini-generated answers.
+- Markdown rendering for formatted responses.
+- Loading state while a response is being generated.
+- Responsive layout styled with Tailwind CSS.
 
-**`Step - 2`** 
-<br>
+## Stack
 
-**After sign up go to `Get Your API Key` and it will redirect you to Gemini API platform. There you need to check some terms and conditions. After that click `Get Started`**
-<br>
+- React 18
+- Vite 5
+- Axios
+- React Markdown
+- Tailwind CSS 3
+- Google Gemini API
 
-**`Step - 3`**
-<br>
+## Requirements
 
-**Now click on _Create API Key_ from there click the `Generate API Key in New Project` section. After that the console will generate a Gemini API key for you. Just copy that API key and keep it pasted in a safe place**
+- Node.js 18 or later
+- npm
+- A Google AI Studio API key
 
-## :warning: Statutary Warning
-**Use your API keys securely. Do not share them or embed them in code the public can view. Just add it to a environment variavle in a `.env` file and don't forget to add a `.gitignore` to that env file. While deploying it at vercel or netlify the just go to the set environment variables  tab and set your env variable name and value.**
+## Setup
 
-## :floppy_disk: Installation
+1. Clone the repository and enter the project:
 
-> Clone This Repository
+   ```bash
+   git clone https://github.com/Brajesh31/Sampark-AI.git
+   cd Sampark-AI
+   ```
 
-```sh
-git clone https://github.com/Megh2005/Sampark-AI.git
-```
+2. Install dependencies:
 
-> Navigate To The Code File
+   ```bash
+   npm ci
+   ```
 
-```sh
-cd Sampark-AI
-```
+3. Create a local environment file:
 
-> Install All Dependencies
+   ```bash
+   cp .env.example .env
+   ```
 
-```sh
-npm install
-```
+4. Set `VITE_GEMINI_API_KEY` in `.env` to a key created in [Google AI Studio](https://aistudio.google.com/app/apikey).
 
-> Open With Code
+5. Start the development server:
 
-```sh
-code .
-```
+   ```bash
+   npm run dev
+   ```
 
-> Run The Project
+6. Open the local URL printed by Vite, usually `http://localhost:5173`.
 
-```sh
-npm run dev
-```
+## Available scripts
 
-> Project URL
+| Command | Purpose |
+|---|---|
+| `npm run dev` | Start the Vite development server |
+| `npm run lint` | Run ESLint |
+| `npm run build` | Create the production build in `dist/` |
+| `npm run preview` | Preview the production build locally |
 
-```sh
-http://localhost:5173
-```
+## Request flow
 
-## :inbox_tray: Contribution & Issues
-**I am not so good at frontend. I have coded a very basic CSS and requesting all frontend developers to contribute an attractive frontend. If you have any ideas for improvements & new features, feel free to open an issue or submit a pull request :**
-> Fork The Repository
-```sh
-git remote -v https://github.com/Megh2005/Sampark-AI.git
-```
-> Create New Branch 
-```sh
-git checkout -b feature/your-feature
-```
-> Commit Your Changes
-```sh
-git commit -m "Add your feature"
-```
-> Push To The Branch
-```sh
-git push origin feature/your-feature
-```
-> Submit a pull request
-```sh
-git pull-request [username] [branch]
+```mermaid
+flowchart TD
+    A[User enters a question] --> B[React form]
+    B --> C[Axios request]
+    C --> D[Google Gemini API]
+    D --> E[Generated response]
+    E --> F[React Markdown]
+    F --> G[Rendered answer]
 ```
 
-## :computer: Tech Stack
-[![My Skills](https://skillicons.dev/icons?i=vite&theme=dark)](https://sampark-murex.vercel.app/)
-&nbsp;
-[![My Skills](https://skillicons.dev/icons?i=nodejs&theme=dark)](https://sampark-murex.vercel.app/)
-&nbsp;
-[![My Skills](https://skillicons.dev/icons?i=tailwind&theme=dark)](https://sampark-murex.vercel.app/)
-&nbsp;
-[![My Skills](https://skillicons.dev/icons?i=git&theme=dark)](https://sampark-murex.vercel.app/)
-&nbsp;
-[![My Skills](https://skillicons.dev/icons?i=github&theme=dark)](https://sampark-murex.vercel.app/)
-&nbsp;
-[![My Skills](https://skillicons.dev/icons?i=md&theme=dark)](https://sampark-murex.vercel.app/)
-&nbsp;
+## Security warning
 
-## :link: Deployment
-[![My Skills](https://skillicons.dev/icons?i=vercel&theme=dark)](https://sampark-murex.vercel.app/)
-&nbsp;
-[![My Skills](https://skillicons.dev/icons?i=netlify&theme=dark)](https://sampark-ai.netlify.app/)
-&nbsp;
-[![My Skills](https://skillicons.dev/icons?i=github&theme=dark)](https://github.com/Megh2005/Sampark-AI/)
-&nbsp;
-[![My Skills](https://skillicons.dev/icons?i=ubuntu&theme=dark)](https://tinyurl.com/sampark-demo/)
+The current implementation calls Gemini directly from the browser. Vite exposes `VITE_*` variables in the client bundle, so this approach does **not** keep the API key secret. It is suitable only for a restricted development/demo key. For a public production deployment, move the Gemini request to a server-side API route, store the key in server environment variables, apply rate limits, and validate requests on the server.
 
-**_Please dont forget to visit my GitHub repository and please hit a :star: in the GitHub repository_**
+A Gemini key was previously committed in source code and has been removed from the current version. **Revoke or rotate that exposed key in Google AI Studio.** Removing it from the latest commit does not erase it from Git history.
 
-Last updated: 2026-11-13 13:55 UTC
+## Current scope and limitations
+
+This repository is a prompt-and-response interface. It does not currently include user accounts, persistent chat history, a backend proxy, streaming responses, or automated frontend tests.
+
+## Contributing
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Please do not include API keys or other secrets in issues or pull requests.
+
+## Security
+
+See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance.
+
+## License
+
+MIT. See [LICENSE](LICENSE).

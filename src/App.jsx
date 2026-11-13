@@ -2,68 +2,112 @@ import { useState } from "react";
 import axios from "axios";
 import ReactMarkdown from "react-markdown";
 
+const GEMINI_API_URL =
+  "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent";
+
 function App() {
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [generatingAnswer, setGeneratingAnswer] = useState(false);
 
-  async function generateAnswer(e) {
-    setGeneratingAnswer(true);
-    e.preventDefault();
-    setAnswer("Generating Response...");
-    try {
-      const response = await axios({
-        url: `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=AIzaSyADoXQMjbhqeoticLNwhIztvTMDEDkxSGs`,
-        method: "post",
-        data: {
-          contents: [{ parts: [{ text: question }] }],
-        },
-      });
+  async function generateAnswer(event) {
+    event.preventDefault();
+
+    const prompt = question.trim();
+    const apiKey = import.meta.env.VITE_GEMINI_API_KEY;
+
+    if (!prompt || generatingAnswer) return;
+
+    if (!apiKey) {
       setAnswer(
-        response["data"]["candidates"][0]["content"]["parts"][0]["text"]
+        "Gemini API key is not configured. Add VITE_GEMINI_API_KEY to your local .env file and restart the development server."
       );
-    } catch (error) {
-      console.log(error);
-      setAnswer("Sorry - Something went wrong. Please try again!");
+      return;
     }
 
-    setGeneratingAnswer(false);
+    setGeneratingAnswer(true);
+    setAnswer("");
+
+    try {
+      const response = await axios.post(
+        `${GEMINI_API_URL}?key=${apiKey}`,
+        {
+          contents: [{ parts: [{ text: prompt }] }],
+        }
+      );
+
+      const generatedText =
+        response.data?.candidates?.[0]?.content?.parts
+          ?.map((part) => part.text || "")
+          .join("\n")
+          .trim();
+
+      setAnswer(
+        generatedText || "Gemini returned an empty response. Please try again."
+      );
+    } catch (error) {
+      const message =
+        error.response?.data?.error?.message ||
+        error.message ||
+        "Unknown error";
+      setAnswer(`Unable to generate a response: ${message}`);
+    } finally {
+      setGeneratingAnswer(false);
+    }
   }
 
   return (
-    <>
-      <div className="scroll">
-        <div className="bg-black h-auto w-screen p-5 font-bold scroll">
-          <form
-            onSubmit={generateAnswer}
-            className="w-full md:w-2/3 m-auto text-center rounded bg-black py-2"
+    <main className="min-h-screen bg-black px-4 py-8 text-white">
+      <div className="mx-auto w-full max-w-3xl">
+        <header className="mb-8 text-center">
+          <h1 className="mb-2 text-3xl font-bold text-violet-500">
+            Sampark AI
+          </h1>
+          <p className="text-sm text-gray-400">
+            Ask a question and get an AI-generated response.
+          </p>
+        </header>
+
+        <form onSubmit={generateAnswer} className="space-y-4">
+          <label htmlFor="question" className="sr-only">
+            Your question
+          </label>
+          <textarea
+            id="question"
+            required
+            rows={5}
+            className="w-full resize-y rounded-lg border border-gray-700 bg-transparent p-4 text-white outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-500/30"
+            value={question}
+            onChange={(event) => setQuestion(event.target.value)}
+            placeholder="Ask Sampark AI anything..."
+            disabled={generatingAnswer}
+          />
+          <button
+            type="submit"
+            className="rounded-lg bg-gradient-to-br from-purple-600 to-blue-500 px-5 py-3 font-medium transition hover:opacity-90 disabled:cursor-not-allowed disabled:opacity-50"
+            disabled={generatingAnswer || !question.trim()}
           >
-            <a href="https://github.com/Megh2005/Megh2005" target="_blank">
-              <h1 className="text-3xl text-center text-violet-500 mb-4 font-bold">
-                Sampark AI
-              </h1>
-            </a>
-            <textarea
-              required
-              className="border rounded w-11/12 my-2 min-h-fit p-3 bg-transparent text-white resize-none focus:outline-none focus:ring-2 focus:ring-violet-600 focus:border-transparent transition-all duration-300 mb-6"
-              value={question}
-              onChange={(e) => setQuestion(e.target.value)}
-              placeholder="Hello I am Sampark AI, Ask me anything!"
-            ></textarea>
-            <button
-              type="submit"
-              className="text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center me-2 mb-2 duration-1000"
-              disabled={generatingAnswer}
-            >
-              Generate Response
-            </button>
-          </form>
-          <div className="md:w-2/3 items-center justify-center m-auto text-start w-96 h-screen rounded bg-transparent text-blue-500 my-2 gap-2">
-            <ReactMarkdown className="p-3">{answer}</ReactMarkdown>
-          </div>
-        </div>
+            {generatingAnswer ? "Generating..." : "Generate response"}
+          </button>
+        </form>
+
+        {(answer || generatingAnswer) && (
+          <section
+            className="mt-8 min-h-24 rounded-lg border border-gray-800 bg-gray-950 p-4"
+            aria-live="polite"
+            aria-busy={generatingAnswer}
+          >
+            {generatingAnswer ? (
+              <p className="text-blue-300">Generating response...</p>
+            ) : (
+              <div className="prose prose-invert max-w-none">
+                <ReactMarkdown>{answer}</ReactMarkdown>
+              </div>
+            )}
+          </section>
+        )}
       </div>
-    </>
+    </main>
   );
 }
 
