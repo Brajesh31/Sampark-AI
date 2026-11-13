@@ -1,107 +1,123 @@
 # Sampark AI
 
-Sampark AI is a single-page question-and-answer interface built with React and Vite. Users enter a prompt, the app sends it to Google's Gemini API, and the response is rendered as Markdown.
+Sampark AI is a small React single-page application for submitting a text prompt to Google's Gemini generate-content API and displaying the generated answer as Markdown. The interface is intentionally narrow: one prompt, one response, and a visible loading state.
 
-<p align="center">
-  <img alt="React" src="https://img.shields.io/badge/React-18-61DAFB?logo=react&logoColor=20232A">
-  <img alt="Vite" src="https://img.shields.io/badge/Vite-5-646CFF?logo=vite&logoColor=white">
-  <img alt="Tailwind CSS" src="https://img.shields.io/badge/Tailwind_CSS-3-06B6D4?logo=tailwindcss&logoColor=white">
-  <img alt="License" src="https://img.shields.io/badge/License-MIT-green.svg">
-</p>
+This repository is a frontend demonstration, not a complete conversational product. It currently has no server-side API proxy, user identity, persistent conversation history, streaming output, prompt library, moderation service or automated browser test suite.
 
-## Features
+## What it does
 
-- Prompt submission through a simple chat-style form.
-- Gemini-generated answers.
-- Markdown rendering for formatted responses.
-- Loading state while a response is being generated.
-- Responsive layout styled with Tailwind CSS.
+- Accepts a non-empty text prompt.
+- Sends the prompt to the configured Gemini model using Axios.
+- Displays the first candidate's text parts as Markdown.
+- Shows a loading indicator while the request is active.
+- Prevents a second submission while a request is in progress.
+- Displays a human-readable message when configuration or the API request fails.
+- Uses React 18, Vite 5 and Tailwind CSS 3.
 
 ## Stack
 
-- React 18
-- Vite 5
-- Axios
-- React Markdown
-- Tailwind CSS 3
-- Google Gemini API
+| Layer | Implementation |
+|---|---|
+| UI | React 18 |
+| Development server and bundler | Vite 5 |
+| Styling | Tailwind CSS 3 |
+| HTTP | Axios |
+| Markdown rendering | react-markdown |
+| AI provider | Google Gemini generateContent REST API |
+| Quality checks | ESLint and Vite production build |
 
 ## Requirements
 
-- Node.js 18 or later
-- npm
-- A Google AI Studio API key
+- Node.js 18 or a compatible newer LTS release.
+- npm.
+- A Google AI Studio API key for local interactive use.
+- Internet access to reach the Gemini API.
 
-## Setup
+## Local setup
 
-1. Clone the repository and enter the project:
+Clone the project:
 
-   ```bash
-   git clone https://github.com/Brajesh31/Sampark-AI.git
-   cd Sampark-AI
-   ```
+    git clone https://github.com/Brajesh31/Sampark-AI.git
+    cd Sampark-AI
 
-2. Install dependencies:
+Install the exact dependency versions recorded in the lockfile:
 
-   ```bash
-   npm ci
-   ```
+    npm ci
 
-3. Create a local environment file:
+Create a local environment file:
 
-   ```bash
-   cp .env.example .env
-   ```
+    cp .env.example .env
 
-4. Set `VITE_GEMINI_API_KEY` in `.env` to a key created in [Google AI Studio](https://aistudio.google.com/app/apikey).
+Set the key in .env:
 
-5. Start the development server:
+    VITE_GEMINI_API_KEY=your-restricted-development-key
 
-   ```bash
-   npm run dev
-   ```
+Start Vite:
 
-6. Open the local URL printed by Vite, usually `http://localhost:5173`.
+    npm run dev
 
-## Available scripts
+Open the local address printed by Vite, normally http://localhost:5173.
 
-| Command | Purpose |
+The environment variable is read through import.meta.env.VITE_GEMINI_API_KEY. Restart the Vite server after changing the environment file.
+
+## Available commands
+
+| Command | Description |
 |---|---|
-| `npm run dev` | Start the Vite development server |
-| `npm run lint` | Run ESLint |
-| `npm run build` | Create the production build in `dist/` |
-| `npm run preview` | Preview the production build locally |
+| npm ci | Install dependencies from package-lock.json |
+| npm run dev | Start the local Vite development server |
+| npm run lint | Run ESLint with warnings treated as failures |
+| npm run build | Generate the production bundle in dist/ |
+| npm run preview | Serve the generated bundle locally for inspection |
 
-## Request flow
+## How a request works
 
-```mermaid
-flowchart TD
-    A[User enters a question] --> B[React form]
-    B --> C[Axios request]
-    C --> D[Google Gemini API]
-    D --> E[Generated response]
-    E --> F[React Markdown]
-    F --> G[Rendered answer]
-```
+1. The user types a question in the textarea.
+2. The form handler trims the input and ignores an empty prompt or duplicate submission.
+3. The app reads the configured Gemini key.
+4. It sets the loading state and clears the previous answer.
+5. Axios sends a generateContent request to the configured Gemini model.
+6. The response handler collects text from the first candidate's content parts.
+7. The text is stored in React state and rendered through react-markdown.
+8. The loading state is cleared in the finally block.
 
-## Security warning
+The implementation and current response assumptions are documented in docs/ARCHITECTURE.md and docs/API-INTEGRATION.md.
 
-The current implementation calls Gemini directly from the browser. Vite exposes `VITE_*` variables in the client bundle, so this approach does **not** keep the API key secret. It is suitable only for a restricted development/demo key. For a public production deployment, move the Gemini request to a server-side API route, store the key in server environment variables, apply rate limits, and validate requests on the server.
+## Important security limitation
 
-A Gemini key was previously committed in source code and has been removed from the current version. **Revoke or rotate that exposed key in Google AI Studio.** Removing it from the latest commit does not erase it from Git history.
+The current browser application sends the Gemini request directly to Google. Vite exposes variables prefixed with VITE_ in the generated client assets. Therefore VITE_GEMINI_API_KEY is visible to anyone who can access the application. The API key is also included in the request URL query string, which can appear in browser developer tools and diagnostic logs.
 
-## Current scope and limitations
+Use only a restricted, low-quota development key for this client-side demonstration. Do not treat a VITE_ variable as a secret. A previously committed key was removed from the current source, but a later commit does not remove exposure from Git history. Revoke or rotate that key in Google AI Studio.
 
-This repository is a prompt-and-response interface. It does not currently include user accounts, persistent chat history, a backend proxy, streaming responses, or automated frontend tests.
+For a public deployment, move provider calls to a backend endpoint. Store the key in server-side environment configuration, validate input, enforce request limits, control allowed origins, and avoid logging secrets or full provider URLs. See docs/SECURITY-AND-OPERATIONS.md.
+
+## Current limitations
+
+- One prompt and one answer are held in component state.
+- Refreshing the page clears the current prompt and answer.
+- There is no account or authorization layer.
+- There is no chat transcript or conversation context sent between requests.
+- Responses are not streamed.
+- The UI uses only the first candidate returned by the API.
+- The model identifier is currently hard-coded in src/App.jsx.
+- There is no typed response schema or dedicated error classification.
+- No automated component or browser tests are currently configured.
+- No backend exists to protect the provider key or enforce server-side quotas.
+
+## Documentation
+
+- docs/ARCHITECTURE.md: component boundaries, state, request lifecycle and data flow.
+- docs/API-INTEGRATION.md: provider endpoint, request and response assumptions, and failure modes.
+- docs/DEVELOPMENT.md: local setup, configuration, scripts and engineering workflow.
+- docs/DEPLOYMENT.md: static hosting, build output and environment handling.
+- docs/SECURITY-AND-OPERATIONS.md: key exposure, abuse controls and operational safeguards.
+- docs/TESTING.md: current validation and manual test matrix.
+- docs/TROUBLESHOOTING.md: common setup and API failures.
 
 ## Contributing
 
-Read [CONTRIBUTING.md](CONTRIBUTING.md) before submitting a change. Please do not include API keys or other secrets in issues or pull requests.
-
-## Security
-
-See [SECURITY.md](SECURITY.md) for vulnerability reporting guidance.
+Read CONTRIBUTING.md before opening a pull request. Keep changes focused and include the checks you actually ran.
 
 ## License
 
-MIT. See [LICENSE](LICENSE).
+MIT. See LICENSE.
